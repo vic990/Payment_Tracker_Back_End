@@ -14,5 +14,33 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     languageOptions: { globals: globals.node },
   },
-  tseslint.configs.recommended,
+  {
+    ...tseslint.configs.recommended,
+    rules: {
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          selector: "variableLike",
+          format: ["camelCase"],
+          leadingUderscore: "allow",
+        },
+        {
+          selector: "typeLike",
+          format: ["PascalCase"],
+        },
+        {
+          selector: "interface",
+          format: ["PascalCase"],
+          custom: {
+            regex: "^[A-Z]",
+            match: true,
+          },
+        },
+        {
+          selector: "class",
+          format: ["PascalCase"],
+        },
+      ],
+    },
+  },
 ]);
