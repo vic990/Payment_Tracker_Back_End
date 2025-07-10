@@ -2,19 +2,19 @@ import { DataSource } from "typeorm";
 import "reflect-metadata";
 import sql from "mssql";
 require("dotenv").config();
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 
-dotenv.config();
+// dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: "mssql",
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || "1433"),
-  username: process.env.BD_USERNAME,
-  password: process.env.BD_PASSWORD,
-  database: process.env.BD_NAME,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   synchronize: false,
-  entities: [__dirname + "/..entities/*.ts"],
+  entities: [__dirname + "/../entities/*.ts"],
   options: {
     encrypt: false,
     trustServerCertificate: true,

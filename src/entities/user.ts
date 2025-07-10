@@ -18,5 +18,5 @@ export class Users {
   password_hash: string;
 
   @Column()
-  role_id: string;
+  role_id: number;
 }
