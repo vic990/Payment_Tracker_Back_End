@@ -1,99 +1,184 @@
-import { AppDataSource } from "../database/data-source";
-import { Users } from "../entities/user";
-import { Request, response, Response } from "express";
-import { compare, genSalt, hash } from "bcrypt-ts";
-import { generateAccessToken } from "../auth/generateToken";
-import { getuserInfo } from "../auth/generateUserInfo";
+import { Request, Response } from "express";
+import { UserService } from "../services/userService";
+import { jsonResponse } from "../lib/jsonResponse";
+import { json } from "stream/consumers";
 
-export async function getUsers(request: Request, response: Response) {
-  const usersRepository = await AppDataSource.getRepository(Users);
-  const users = await usersRepository.find();
-  response.send(users.length === 0 ? { message: "No hay usuarios" } : users);
-}
+export class UserController {
+  private userService: UserService;
 
-export async function getLoginUser(emailReq) {
-  const usersRepository = await AppDataSource.getRepository(Users).findOne({
-    where: { email: emailReq },
-  });
-
-  return usersRepository;
-}
-
-export async function getUserById(request: Request, response: Response) {
-  const usersRepository = await AppDataSource.getRepository(Users).findOne({
-    where: { user_id: parseInt(request.params.id) },
-  });
-  const userExist = usersRepository
-    ? usersRepository
-    : { message: "Usuario no encontrado" };
-
-  response.send(userExist);
-}
-
-async function emailUserExist(email: string) {
-  const usersRepository = AppDataSource.getRepository(Users);
-  const allUsers = await usersRepository.findOneBy({ email });
-  return !!allUsers;
-}
-
-export async function insertUsers(request: Request, response: Response) {
-  let savedUser;
-  const { email, password } = request.body;
-  const passwordhashed = await hashPassword(password);
-  request.body.password = passwordhashed;
-  const emailFound = await emailUserExist(email);
-  if (email) {
-    const newUser = await AppDataSource.getRepository(Users).create(
-      request.body
-    );
-    savedUser = await AppDataSource.getRepository(Users).save(newUser);
+  constructor() {
+    this.userService = new UserService();
   }
-  response.send(
-    savedUser
-      ? { message: "User saved" }
-      : { message: "This email already exist" }
-  );
-}
 
-export async function updateUser(request: Request, response: Response) {
-  const userRepository = await AppDataSource.getRepository(Users).findOne({
-    where: { user_id: parseInt(request.params.id) },
-  });
+  getUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const users = await this.userService.getAllUsers();
 
-  AppDataSource.getRepository(Users).merge(userRepository, request.body);
-  const updatedUser = await AppDataSource.getRepository(Users).save(
-    userRepository
-  );
+      res.status(200).json(
+        jsonResponse(200, {
+          message:
+            users.length === 0
+              ? "No hay usuarios"
+              : "Usuarios obtenidos exitosamente",
+          data: users,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        jsonResponse(500, {
+          message: "Error interno del servidor",
+          error: error,
+        })
+      );
+    }
+  };
 
-  response.send(
-    updatedUser
-      ? { message: "Usuario actualizado" }
-      : { message: "Hubo un problema actualizando el usuario" }
-  );
-}
+  getUserById = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = parseInt(id);
 
-export async function deleteUser(request: Request, response: Response) {
-  const deletedUser = await AppDataSource.getRepository(Users).delete(
-    parseInt(request.params.id)
-  );
+      if (isNaN(userId)) {
+        res.status(404).json(
+          jsonResponse(404, {
+            message: "ID de usuario inválido",
+          })
+        );
+      }
 
-  response.send(
-    deletedUser.affected != 0
-      ? { message: "Usuario borrado" }
-      : { message: "No se encontró el usuario" }
-  );
-}
+      const user = await this.userService.getUserById(userId);
 
-export async function hashPassword(pass) {
-  const salt = await genSalt(10);
-  const password = pass;
-  const result = await hash(password, salt);
-  return result;
-}
+      if (!user) {
+        res.status(404).json(
+          jsonResponse(404, {
+            message: "usuario no entontrado",
+          })
+        );
+      }
 
-export async function comparePassword(
-  password: string,
-  hashedPassword: string
-): Promise<boolean> {
-  return compare(password, hashedPassword); // aqui le quite el await ya que es implicito
+      res.status(200).json(
+        jsonResponse(200, {
+          message: "Usuario encontrado",
+          data: user,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        jsonResponse(500, {
+          message: "Error interno del servidor",
+          error: error,
+        })
+      );
+    }
+  };
+
+  createUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { user_name, user_lastname, email, password_hash, role_id } =
+        req.body;
+
+      if (
+        !user_name ||
+        !user_lastname ||
+        !email ||
+        !password_hash ||
+        !role_id
+      ) {
+        res.status(400).json(
+          jsonResponse(400, {
+            message: "Todos los campos son requeridos",
+          })
+        );
+      }
+
+      const result = await this.userService.createUser({
+        user_name,
+        user_lastname,
+        email,
+        password_hash,
+        role_id,
+      });
+
+      const statusCode = result ? 201 : 400;
+
+      res.status(statusCode).json(
+        jsonResponse(statusCode, {
+          message: result.message,
+          data: result.user,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        jsonResponse(500, {
+          message: "Error interno del servidor",
+          error: error,
+        })
+      );
+    }
+  };
+
+  updateUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = parseInt(id);
+
+      if (isNaN(userId)) {
+        res.status(400).json(
+          jsonResponse(400, {
+            message: "Usuario ivalido",
+          })
+        );
+      }
+
+      const result = await this.userService.updateUser(userId, req.body);
+
+      const statusCode = result ? 200 : 404;
+
+      res.status(statusCode).json(
+        jsonResponse(statusCode, {
+          message: result.message,
+          data: result.user,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        jsonResponse(500, {
+          message: "Error interno del servidor",
+          error: error,
+        })
+      );
+    }
+  };
+
+  deleteUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = parseInt(id);
+
+      if (isNaN(userId)) {
+        res.status(400).json(
+          jsonResponse(400, {
+            message: "ID de usuario inválido",
+          })
+        );
+      }
+
+      const result = await this.userService.deleteUser(userId);
+
+      const statusCode = result ? 200 : 400;
+
+      res.status(statusCode).json(
+        jsonResponse(statusCode, {
+          message: result.message,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        jsonResponse(500, {
+          message: "Error interno del servidor",
+          error: error,
+        })
+      );
+    }
+  };
 }

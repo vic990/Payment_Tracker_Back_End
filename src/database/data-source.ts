@@ -20,20 +20,3 @@ export const AppDataSource = new DataSource({
     trustServerCertificate: true,
   },
 });
-
-export const getconnection = async () => {
-  try {
-    const pool = await sql.getconnection(AppDataSource);
-    return pool;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// export const con = AppDataSource.initialize()
-//   .then(() => {
-//     console.log("✅ Conexión a SQL Server establecida");
-//   })
-//   .catch((error) => {
-//     console.log("❌ Error al conectar a la base de datos:", error);
-//   });
