@@ -2,6 +2,7 @@ import { UserRepository } from "../repositories/user.repository";
 import { Users } from "../entities/user";
 import { compare, genSalt, hash } from "bcrypt-ts";
 import { getUserInfo } from "../lib/getUserInfo";
+import { userInfo } from "../lib/type";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -16,6 +17,10 @@ export class UserService {
 
   async getUserById(id: number): Promise<Users | null> {
     return await this.userRepository.findById(id);
+  }
+
+  async findByEmail(email: string): Promise<Users | null> {
+    return await this.userRepository.findByEmail(email);
   }
 
   async createUser(
@@ -77,13 +82,14 @@ export class UserService {
   async authenticateUser(
     email: string,
     password: string
-  ): Promise<{ success: boolean; message: string; user?: Users }> {
+  ): Promise<{ success: boolean; message: string; user?: userInfo }> {
+    let userInfoData: userInfo;
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
       return {
         success: false,
-        message: "Usuario no encontrado",
+        message: "Usuario o constraseña incorrectas",
       };
     }
 
@@ -95,13 +101,18 @@ export class UserService {
     if (!isValidPassword) {
       return {
         success: false,
-        message: "Usuaario o constraseña incorrectas",
+        message: "Usuario o constraseña incorrectas",
       };
     }
 
     return {
       success: true,
       message: "Autenticado correctamente",
+      user: (userInfoData = {
+        user_id: user.user_id,
+        user_name: user.user_name,
+        user_lastname: user.user_lastname,
+      }),
     };
   }
 

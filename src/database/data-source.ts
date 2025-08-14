@@ -1,10 +1,10 @@
 import { DataSource } from "typeorm";
 import "reflect-metadata";
 import sql from "mssql";
-require("dotenv").config();
-// import dotenv from "dotenv";
+//require("dotenv").config();
+import dotenv from "dotenv";
 
-// dotenv.config();
+dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: "mssql",

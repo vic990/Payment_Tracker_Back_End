@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { jsonResponse } from "../lib/jsonResponse";
-import { json } from "stream/consumers";
 
 export class UserController {
   private userService: UserService;
