@@ -13,6 +13,7 @@ export class LoginController {
 
   login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
+    console.log(email);
 
     if (!email || !password) {
       res.status(400).json(
@@ -33,7 +34,15 @@ export class LoginController {
         user_name: user.user_name,
         user_lastname: user.user_lastname,
       };
-      const accessToken = generateRefreshToken(userInfoAuth);
+      const accessToken = generateAccessToken(userInfoAuth);
+      const refresToken = generateRefreshToken(userInfoAuth);
+      res.status(200).json(
+        jsonResponse(200, {
+          user: user,
+          accessToken: accessToken,
+          refresToken: refresToken,
+        })
+      );
     } else {
       res
         .status(400)
