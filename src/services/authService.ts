@@ -1,4 +1,4 @@
-import { Users } from "../entities/user";
+import { userInfo } from "../lib/type";
 import { UserService } from "./userService";
 
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
   async login(
     email: string,
     password: string
-  ): Promise<{ success: boolean; message: string; user?: Users }> {
+  ): Promise<{ success: boolean; message: string; user?: userInfo }> {
     if (!email || !password) {
       return {
         success: false,
