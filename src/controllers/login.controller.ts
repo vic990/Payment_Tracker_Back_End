@@ -40,7 +40,7 @@ export class LoginController {
         jsonResponse(200, {
           user: user,
           accessToken: accessToken,
-          refresToken: refresToken,
+          refresToken: await refresToken,
         })
       );
     } else {
