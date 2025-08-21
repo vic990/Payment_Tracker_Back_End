@@ -29,13 +29,13 @@ export class LoginController {
     );
 
     if (success && user) {
-      const userInfoAuth: userInfo = {
-        user_id: user?.user_id,
-        user_name: user.user_name,
-        user_lastname: user.user_lastname,
-      };
-      const accessToken = generateAccessToken(userInfoAuth);
-      const refresToken = generateRefreshToken(userInfoAuth);
+      // const userInfoAuth: userInfo = {
+      //   user_id: user?.user_id,
+      //   user_name: user.user_name,
+      //   user_lastname: user.user_lastname,
+      // };
+      const accessToken = generateAccessToken(user);
+      const refresToken = generateRefreshToken(user);
       res.status(200).json(
         jsonResponse(200, {
           user: user,
