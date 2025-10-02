@@ -13,7 +13,6 @@ export class LoginController {
 
   login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
-    console.log(email);
 
     if (!email || !password) {
       res.status(400).json(
@@ -35,12 +34,12 @@ export class LoginController {
       //   user_lastname: user.user_lastname,
       // };
       const accessToken = generateAccessToken(user);
-      const refresToken = generateRefreshToken(user);
+      const refresToken = generateRefreshToken(user); //hay que implementar el signup para guardar el token y despues poder hacer los updates
       res.status(200).json(
         jsonResponse(200, {
           user: user,
           accessToken: accessToken,
-          refresToken: await refresToken,
+          refreshToken: await refresToken,
         })
       );
     } else {
