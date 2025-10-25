@@ -83,7 +83,6 @@ export class UserService {
     email: string,
     password: string
   ): Promise<{ success: boolean; message: string; user?: userInfo }> {
-    let userInfoData: userInfo;
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
@@ -104,15 +103,12 @@ export class UserService {
         message: "Usuario o constraseña incorrectas",
       };
     }
+    const userInfoData: userInfo = getUserInfo(user);
 
     return {
       success: true,
       message: "Autenticado correctamente",
-      user: (userInfoData = {
-        user_id: user.user_id,
-        user_name: user.user_name,
-        user_lastname: user.user_lastname,
-      }),
+      user: userInfoData,
     };
   }
 

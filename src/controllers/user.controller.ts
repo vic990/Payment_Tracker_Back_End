@@ -90,13 +90,7 @@ export class UserController {
         );
       }
 
-      const result = await this.userService.createUser({
-        user_name,
-        user_lastname,
-        email,
-        password_hash,
-        role_id,
-      });
+      const result = await this.userService.createUser(req.body);
 
       const statusCode = result ? 201 : 400;
 

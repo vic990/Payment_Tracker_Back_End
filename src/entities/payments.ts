@@ -10,4 +10,6 @@ export class Payments {
   paid_by_user_id: number;
   @Column()
   paid_on_behalf_of_user_id: number;
+  @Column()
+  notes: string;
 }

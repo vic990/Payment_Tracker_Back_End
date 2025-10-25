@@ -1,5 +1,3 @@
-export interface userInfo {
-  user_id?: number;
-  user_name: string;
-  user_lastname: string;
-}
+import { Users } from "../entities/user";
+
+export type userInfo = Pick<Users, "user_id" | "user_name" | "user_lastname">;
