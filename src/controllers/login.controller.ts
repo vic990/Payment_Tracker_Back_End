@@ -28,11 +28,6 @@ export class LoginController {
     );
 
     if (success && user) {
-      // const userInfoAuth: userInfo = {
-      //   user_id: user?.user_id,
-      //   user_name: user.user_name,
-      //   user_lastname: user.user_lastname,
-      // };
       const accessToken = generateAccessToken(user);
       const refresToken = generateRefreshToken(user); //hay que implementar el signup para guardar el token y despues poder hacer los updates
       res.status(200).json(
