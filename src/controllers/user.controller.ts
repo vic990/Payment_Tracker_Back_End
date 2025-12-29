@@ -35,9 +35,11 @@ export class UserController {
   getUserById = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = parseInt(id);
+      console.log(req.params);
 
-      if (isNaN(userId)) {
+      const user_id = parseInt(id);
+      console.log(user_id);
+      if (isNaN(user_id)) {
         res.status(404).json(
           jsonResponse(404, {
             message: "ID de usuario inválido",
@@ -45,7 +47,7 @@ export class UserController {
         );
       }
 
-      const user = await this.userService.getUserById(userId);
+      const user = await this.userService.getUserById(user_id);
 
       if (!user) {
         res.status(404).json(
