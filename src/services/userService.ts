@@ -2,7 +2,7 @@ import { UserRepository } from "../repositories/user.repository";
 import { Users } from "../entities/user";
 import { compare, genSalt, hash } from "bcrypt-ts";
 import { getUserInfo } from "../lib/getUserInfo";
-import { userInfo } from "../lib/type";
+import { userInfo, users } from "../lib/type";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -11,8 +11,9 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  async getAllUsers(): Promise<Users[]> {
-    return await this.userRepository.findAll();
+  async getAllUsers(): Promise<users[]> {
+    const userList = await this.userRepository.findAll();
+    return userList.map(({ password_hash, ...rest }) => rest);
   }
 
   async getUserById(id: number): Promise<Users | null> {

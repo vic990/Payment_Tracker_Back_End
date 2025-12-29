@@ -6,5 +6,6 @@ export function getUserInfo(user: Users): userInfo {
     user_id: user.user_id || 0,
     user_name: user.user_name,
     user_lastname: user.user_lastname,
+    role_id: user.role_id,
   };
 }
